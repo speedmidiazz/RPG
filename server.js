@@ -29,7 +29,10 @@ io.on("connection", (socket) => {
 
     console.log("🟢 Jogador conectado:", socket.id);
 
+    // ==============================
     // CRIAR SALA
+    // ==============================
+
     socket.on("criarSala", () => {
 
         let codigo;
@@ -40,10 +43,13 @@ io.on("connection", (socket) => {
 
         salas[codigo] = {
             jogadores: [],
-            magos: {}
+            magos: {},
+            vida: {}
         };
 
         salas[codigo].jogadores.push(socket.id);
+
+        salas[codigo].vida[socket.id] = 100;
 
         socket.join(codigo);
         socket.sala = codigo;
@@ -59,40 +65,55 @@ io.on("connection", (socket) => {
     });
 
 
+    // ==============================
     // ENTRAR NA SALA
+    // ==============================
+
     socket.on("entrarSala", (codigo) => {
 
-        codigo = String(codigo).trim().toUpperCase();
+        codigo = String(codigo)
+            .trim()
+            .toUpperCase();
 
         const sala = salas[codigo];
 
         if (!sala) {
+
             socket.emit(
                 "erroSala",
                 "❌ Essa sala não existe!"
             );
+
             return;
         }
 
         if (sala.jogadores.length >= 2) {
+
             socket.emit(
                 "erroSala",
                 "❌ Essa sala já está cheia!"
             );
+
             return;
         }
 
         sala.jogadores.push(socket.id);
 
+        sala.vida[socket.id] = 100;
+
         socket.join(codigo);
         socket.sala = codigo;
 
         console.log(
-            "🚪 Jogador entrou na sala:",
+            "🚪 Jogador entrou:",
+            socket.id,
             codigo
         );
 
-        socket.emit("entrouSala", codigo);
+        socket.emit(
+            "entrouSala",
+            codigo
+        );
 
         io.to(codigo).emit(
             "jogadoresSala",
@@ -100,12 +121,134 @@ io.on("connection", (socket) => {
         );
 
         if (sala.jogadores.length === 2) {
-            io.to(codigo).emit("batalhaComecou");
+
+            io.to(codigo).emit(
+                "batalhaComecou"
+            );
+
+            // Enviar vida inicial
+            sala.jogadores.forEach(id => {
+
+                io.to(id).emit(
+                    "vidaAtualizada",
+                    100
+                );
+
+            });
         }
     });
 
 
+    // ==============================
+    // ATAQUE
+    // ==============================
+
+    socket.on("atacarJogador", (dados) => {
+
+        const codigo = socket.sala;
+
+        if (!codigo) {
+            return;
+        }
+
+        const sala = salas[codigo];
+
+        if (!sala) {
+            return;
+        }
+
+        // Encontrar o inimigo
+        const inimigo = sala.jogadores.find(
+            id => id !== socket.id
+        );
+
+        if (!inimigo) {
+
+            socket.emit(
+                "mensagem",
+                {
+                    texto:
+                        "⚠️ Você ainda não tem adversário!"
+                }
+            );
+
+            return;
+        }
+
+        let dano = Number(dados.dano) || 0;
+
+        // Cura não causa dano
+        if (dano < 0) {
+
+            sala.vida[socket.id] =
+                Math.min(
+                    100,
+                    sala.vida[socket.id] - dano
+                );
+
+            io.to(socket.id).emit(
+                "vidaAtualizada",
+                sala.vida[socket.id]
+            );
+
+            return;
+        }
+
+        // Tirar vida
+        sala.vida[inimigo] -= dano;
+
+        if (sala.vida[inimigo] < 0) {
+            sala.vida[inimigo] = 0;
+        }
+
+        console.log(
+            "⚔️",
+            socket.id,
+            "causou",
+            dano,
+            "de dano"
+        );
+
+        // Avisar o inimigo
+        io.to(inimigo).emit(
+            "ataqueRecebido",
+            {
+                poder: dados.poder,
+                dano: dano
+            }
+        );
+
+        // Atualizar HP do inimigo
+        io.to(inimigo).emit(
+            "vidaAtualizada",
+            sala.vida[inimigo]
+        );
+
+        // Verificar morte
+        if (sala.vida[inimigo] <= 0) {
+
+            io.to(codigo).emit(
+                "jogadorMorreu",
+                {
+                    vencedor: socket.id,
+                    derrotado: inimigo
+                }
+            );
+
+            console.log(
+                "💀 Jogador derrotado:",
+                inimigo
+            );
+
+            return;
+        }
+    });
+
+
+    // ==============================
     // ESCOLHER MAGO
+    // ==============================
+
     socket.on("escolherMago", (mago) => {
 
         const codigo = socket.sala;
@@ -116,12 +259,6 @@ io.on("connection", (socket) => {
 
         salas[codigo].magos[socket.id] = mago;
 
-        console.log(
-            socket.id,
-            "escolheu",
-            mago.nome
-        );
-
         socket.to(codigo).emit(
             "magoEscolhido",
             mago
@@ -129,25 +266,10 @@ io.on("connection", (socket) => {
     });
 
 
-    // ATAQUE
-    socket.on("atacarJogador", (dados) => {
-
-        const codigo = socket.sala;
-
-        if (!codigo) {
-            return;
-        }
-
-        console.log("⚔️ Ataque:", dados);
-
-        socket.to(codigo).emit(
-            "ataqueRecebido",
-            dados
-        );
-    });
-
-
+    // ==============================
     // CHAT
+    // ==============================
+
     socket.on("mensagem", (texto) => {
 
         const codigo = socket.sala;
@@ -165,15 +287,18 @@ io.on("connection", (socket) => {
     });
 
 
-    // DESCONEXÃO
+    // ==============================
+    // DESCONECTAR
+    // ==============================
+
     socket.on("disconnect", () => {
+
+        const codigo = socket.sala;
 
         console.log(
             "🔴 Jogador desconectou:",
             socket.id
         );
-
-        const codigo = socket.sala;
 
         if (!codigo || !salas[codigo]) {
             return;
@@ -186,6 +311,7 @@ io.on("connection", (socket) => {
                 id => id !== socket.id
             );
 
+        delete sala.vida[socket.id];
         delete sala.magos[socket.id];
 
         socket.to(codigo).emit(
@@ -196,11 +322,6 @@ io.on("connection", (socket) => {
 
             delete salas[codigo];
 
-            console.log(
-                "🗑️ Sala removida:",
-                codigo
-            );
-
         } else {
 
             io.to(codigo).emit(
@@ -209,16 +330,23 @@ io.on("connection", (socket) => {
             );
         }
     });
-});
-
-
-server.listen(PORT, "0.0.0.0", () => {
-
-    console.log("");
-    console.log("⚔️ ===============================");
-    console.log("🧙 MAGIA LEGENDS ONLINE");
-    console.log(`🌐 Porta: ${PORT}`);
-    console.log("⚔️ ===============================");
-    console.log("");
 
 });
+
+
+server.listen(
+    PORT,
+    "0.0.0.0",
+    () => {
+
+        console.log(
+            "🧙 MAGIA LEGENDS ONLINE"
+        );
+
+        console.log(
+            "🌐 Porta:",
+            PORT
+        );
+
+    }
+);
