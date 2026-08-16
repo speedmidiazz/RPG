@@ -561,7 +561,7 @@ io.on("connection", (socket) => {
     // ========================================
 
     socket.on("atacarJogador", (dados) => {
-
+console.log("⚔️ ATAQUE RECEBIDO DO JOGADOR:", dados);
         const codigo = socket.sala;
 
         if (!codigo) return;
