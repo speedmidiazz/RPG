@@ -771,6 +771,24 @@ socket.on(
 
     }
 );
+function atualizarVida(vida) {
+
+    const barras =
+        document.querySelectorAll(
+            ".vidaJogador"
+        );
+
+    barras.forEach(
+        barra => {
+
+            barra.textContent =
+                `❤️ Vida: ${vida}/100`;
+
+        }
+    );
+
+}
+
 // ============================================
 // MAGO ESCOLHIDO
 // ============================================
