@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>⚔️ Magia Legends</title>
+
+    <!-- CSS -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <!-- SOCKET.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================================================= -->
+    <!-- MENU ONLINE -->
+    <!-- ================================================= -->
+
+    <section id="online">
+
+        <h1>
+            ⚔️ MAGIA LEGENDS
+        </h1>
+
+        <p>
+            🌐 RPG Online de Magos
+        </p>
+
+
+        <div class="online-box">
+
+            <h2>
+                🌐 JOGAR ONLINE
+            </h2>
+
+
+            <!-- CRIAR SALA -->
+
+            <button id="criarSala">
+
+                🏠 CRIAR SALA
+
+            </button>
+
+
+            <!-- SALA CRIADA -->
+
+            <div
+                id="salaCriada"
+                class="escondido"
+            >
+
+                <h2>
+                    🔑 Código da sala
+                </h2>
+
+
+                <div id="codigoSala">
+
+                    -----
+
+                </div>
+
+
+                <p>
+
+                    Mande esse código
+                    para seu amigo.
+
+                </p>
+
+            </div>
+
+
+            <hr>
+
+
+            <!-- ENTRAR -->
+
+            <h2>
+                🚪 ENTRAR EM UMA SALA
+            </h2>
+
+
+            <input
+                id="codigoEntrada"
+                type="text"
+                maxlength="5"
+                placeholder="Código da sala"
+            >
+
+
+            <br>
+
+
+            <button id="entrarSala">
+
+                ⚔️ ENTRAR NA SALA
+
+            </button>
+
+
+            <div id="statusOnline">
+
+                👥 Jogadores: 0/2
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- TUTORIAL -->
+    <!-- ================================================= -->
+
+    <section
+        id="tutorial"
+        class="escondido"
+    >
+
+
+        <div class="tutorial-jogo">
+
+
+            <!-- FLORESTA -->
+
+            <div class="floresta">
+
+                <div class="caminho"></div>
+
+
+                <div id="personagemTutorial">
+
+                    🧙
+
+                </div>
+
+            </div>
+
+
+
+            <!-- MESTRE -->
+
+            <div class="mestre">
+
+                <h2>
+                    🧙 Mestre
+                </h2>
+
+
+                <p id="textoTutorial">
+
+                    Bem-vindo,
+                    aventureiro!
+
+                </p>
+
+
+                <div id="opcoesTutorial">
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- ESCOLHA DE MAGOS -->
+    <!-- ================================================= -->
+
+    <section
+        id="menu"
+        class="escondido"
+    >
+
+
+        <h1>
+
+            🧙 ESCOLHA SEU MAGO
+
+        </h1>
+
+
+        <p>
+
+            Escolha seu personagem
+            para começar sua aventura.
+
+        </p>
+
+
+        <!-- STATUS ONLINE -->
+
+        <div
+            id="statusPartida"
+            class="status-partida"
+        >
+
+            🌐 Conecte-se a uma sala
+            para jogar online.
+
+        </div>
+
+
+        <!-- NÍVEL -->
+
+        <div id="nivelEscolha">
+
+            ⭐ Seu nível:
+
+            <b id="nivelMenu">
+                1
+            </b>
+
+        </div>
+
+
+        <!-- PERSONAGENS -->
+
+        <div id="personagens">
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- JOGO / BATALHA -->
+    <!-- ================================================= -->
+
+    <section
+        id="jogo"
+        class="escondido"
+    >
+
+
+        <!-- HEADER -->
+
+        <header>
+
+
+            <h1>
+
+                ⚔️ MAGIA LEGENDS
+
+            </h1>
+
+
+            <div class="player-info">
+
+
+                <span>
+
+                    ⭐ Nível:
+
+                    <b id="nivel">
+                        1
+                    </b>
+
+                </span>
+
+
+                <span>
+
+                    🏆 XP:
+
+                    <b id="xp">
+                        0
+                    </b>
+
+                </span>
+
+
+                <span>
+
+                    🌐 ONLINE
+
+                </span>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- MAIN -->
+
+        <main>
+
+
+            <!-- ================================================= -->
+            <!-- ARENA -->
+            <!-- ================================================= -->
+
+            <div class="arena">
+
+
+                <!-- JOGADOR -->
+
+                <div class="personagem">
+
+
+                    <h2>
+
+                        🧙
+
+                        <span id="nomeHeroi">
+                            Mago
+                        </span>
+
+                    </h2>
+
+
+                    <div
+                        id="emojiHeroi"
+                        class="personagem-imagem"
+                    >
+
+                        🧙
+
+                    </div>
+
+
+                    <p id="nomeJogador">
+
+                        Jogador
+
+                    </p>
+
+
+                    <!-- VIDA -->
+
+                    <p>
+
+                        ❤️ Vida:
+
+                        <span id="vidaTexto">
+                            0/0
+                        </span>
+
+                    </p>
+
+
+                    <div class="barra">
+
+                        <div
+                            id="vidaHeroi"
+                            class="vida"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- MANA -->
+
+                    <p>
+
+                        💧 Mana:
+
+                        <span id="manaTexto">
+                            0/0
+                        </span>
+
+                    </p>
+
+
+                    <div class="barra">
+
+                        <div
+                            id="manaHeroi"
+                            class="mana"
+                        ></div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- VS -->
+
+                <div class="versus">
+
+                    VS
+
+                </div>
+
+
+
+                <!-- INIMIGO -->
+
+                <div class="personagem">
+
+
+                    <h2>
+
+                        👹
+
+                        <span id="nomeInimigo">
+
+                            Inimigo
+
+                        </span>
+
+                    </h2>
+
+
+                    <div
+                        id="emojiInimigo"
+                        class="personagem-imagem"
+                    >
+
+                        👹
+
+                    </div>
+
+
+                    <p>
+
+                        👹 Adversário
+
+                    </p>
+
+
+                    <!-- VIDA INIMIGO -->
+
+                    <p>
+
+                        ❤️ Vida:
+
+                        <span id="vidaInimigoTexto">
+
+                            0/0
+
+                        </span>
+
+                    </p>
+
+
+                    <div class="barra">
+
+                        <div
+                            id="vidaInimigo"
+                            class="vida-inimigo"
+                        ></div>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ================================================= -->
+            <!-- AÇÕES -->
+            <!-- ================================================= -->
+
+            <div class="acoes">
+
+
+                <h2>
+
+                    🪄 SEUS PODERES
+
+                </h2>
+
+
+                <div id="magias">
+
+                </div>
+
+
+                <button
+                    onclick="usarPocao()"
+                >
+
+                    🧪 USAR POÇÃO
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- ================================================= -->
+            <!-- MENSAGENS -->
+            <!-- ================================================= -->
+
+            <div class="log">
+
+
+                <h2>
+
+                    📜 História
+
+                </h2>
+
+
+                <div id="mensagens">
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ================================================= -->
+            <!-- CHAT -->
+            <!-- ================================================= -->
+
+            <div class="log">
+
+
+                <h2>
+
+                    💬 Chat
+
+                </h2>
+
+
+                <div
+                    id="chatMensagens"
+                    class="chat-mensagens"
+                >
+
+                </div>
+
+
+                <div class="chat-input">
+
+
+                    <input
+                        id="chatInput"
+                        type="text"
+                        placeholder="Digite uma mensagem..."
+                    >
+
+
+                    <button
+                        id="enviarChat"
+                    >
+
+                        📩 Enviar
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+        </main>
+
+
+    </section>
+
+
+
+    <!-- ================================================= -->
+    <!-- JAVASCRIPT -->
+    <!-- ================================================= -->
+
+    <script src="script.js"></script>
+
+
+</body>
+
+</html>
