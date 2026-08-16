@@ -2106,3 +2106,20 @@ function receberDanoNoInimigo(
     }
 
 }
+console.log("🔥 SCRIPT NOVO CARREGADO!");
+
+const botaoTeste = document.getElementById("criarSala");
+
+console.log("BOTÃO ENCONTRADO:", botaoTeste);
+
+if (botaoTeste) {
+
+    botaoTeste.addEventListener("click", function () {
+
+        console.log("🏠 CLIQUEI EM CRIAR SALA!");
+
+        socket.emit("criarSala");
+
+    });
+
+}
