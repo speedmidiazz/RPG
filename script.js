@@ -745,19 +745,32 @@ socket.on(
     (dados) => {
 
         console.log(
-            "💥 Ataque recebido:",
-            dados
+            "💥 Você recebeu:",
+            dados.poder,
+            "Dano:",
+            dados.dano
         );
 
-
         mostrarMensagem(
-            `💥 O inimigo usou ${dados.poder} causando ${dados.dano} de dano!`
+            `💥 ${dados.poder} causou ${dados.dano} de dano!`
         );
 
     }
 );
 
+socket.on(
+    "vidaAtualizada",
+    (vida) => {
 
+        console.log(
+            "❤️ Minha vida:",
+            vida
+        );
+
+        atualizarVida(vida);
+
+    }
+);
 // ============================================
 // MAGO ESCOLHIDO
 // ============================================
